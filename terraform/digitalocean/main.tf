@@ -6,6 +6,8 @@ variable "workers" { default = "1" }
 variable "master_instance_type" { default = "512mb" }
 variable "worker_instance_type" { default = "512mb" }
 variable "etcd_discovery_url_file" { default = "etcd_discovery_url.txt" }
+variable "sdn" { default = "flannel" }
+
 /*
   we need to use at least beta because we need rkt version 0.15.0+ to run the
   kubelet wrapper script.
@@ -82,9 +84,14 @@ module "admin_cert" {
   ca_private_key_pem = "${module.ca.ca_private_key_pem}"
 }
 
+module "sdn" {
+  source  = "../sdn"
+  peers   = "${join(" ", concat(digitalocean_droplet.master.*.ipv4_address, digitalocean_droplet.worker.*.ipv4_address))}"
+}
+
 resource "template_file" "master_cloud_init" {
   template   = "master-cloud-config.yml.tpl"
-  depends_on = ["template_file.etcd_discovery_url"]
+  depends_on = ["template_file.etcd_discovery_url", "module.sdn"]
   vars {
     etcd_discovery_url = "${file(var.etcd_discovery_url_file)}"
     size               = "${var.masters}"
@@ -93,6 +100,7 @@ resource "template_file" "master_cloud_init" {
     etcd_cert          = "${replace(module.etcd_cert.etcd_cert_pem, \"\n\", \"\\n\")}"
     etcd_key           = "${replace(module.etcd_cert.etcd_private_key, \"\n\", \"\\n\")}"
     kubernetes_ca      = "${replace(module.ca.ca_cert_pem, \"\n\", \"\\n\")}"
+    sdn                = "${sdn.${var.sdn}.cloud_config}"
   }
 }
 
@@ -107,6 +115,7 @@ resource "template_file" "worker_cloud_init" {
     etcd_cert          = "${replace(module.etcd_cert.etcd_cert_pem, \"\n\", \"\\n\")}"
     etcd_key           = "${replace(module.etcd_cert.etcd_private_key, \"\n\", \"\\n\")}"
     kubernetes_ca      = "${replace(module.ca.ca_cert_pem, \"\n\", \"\\n\")}"
+    sdn                = "${sdn.${var.sdn}.cloud_config}"
   }
 }
 
