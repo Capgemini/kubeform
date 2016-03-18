@@ -8,11 +8,10 @@ RestartSec=10
 ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
 EnvironmentFile=/etc/environment
 Environment=KUBELET_VERSION={{ kubernetes_version }}
-# https://github.com/kubernetes/kubernetes/issues/15108
-# On upgrade we can --register-node=true --register-schedulable=false
 ExecStart=/opt/bin/kubelet-wrapper \
   --api-servers=http://127.0.0.1:8080 \
-  --register-node=false \
+  --register-node=true \
+  --register-schedulable=false \
   --allow-privileged=true \
   --config=/etc/kubernetes/manifests \
   --hostname-override=${COREOS_PRIVATE_IPV4} \
