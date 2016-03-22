@@ -1,3 +1,7 @@
 - src: mkaag.coreos-timezone
   name: coreos_timezone
   version: v0.1.2
+
+- src: https://github.com/Capgemini/weave-ansible
+  name: weave
+  version: master

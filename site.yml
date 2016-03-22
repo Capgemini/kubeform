@@ -23,6 +23,7 @@
 - hosts: all
   roles:
     - docker
+    - { role: weave, when: network_plugin == "weave" }
 
 - hosts: masters
   roles:

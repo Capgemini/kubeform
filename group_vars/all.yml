@@ -72,3 +72,5 @@ kubernetes_cert_dir: "{{ kubernetes_config_dir }}/ssl"
 kubernetes_manifest_dir: "{{ kubernetes_config_dir }}/manifests"
 kubernetes_users_dir: "{{ kubernetes_config_dir }}/users"
 kubernetes_podmaster_dir: "{{ kubernetes_script_dir }}/manifests"
+
+network_plugin: 'flannel'

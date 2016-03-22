@@ -12,6 +12,10 @@ role=workers
 masters
 workers
 
+[weave_servers:children]
+masters
+workers
+
 [all:vars]
 ansible_python_interpreter="PATH=/home/core/bin:$PATH python"
 
