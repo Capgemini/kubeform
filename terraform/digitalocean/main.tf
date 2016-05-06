@@ -53,7 +53,6 @@ module "ca" {
   source            = "github.com/Capgemini/tf_tls//ca"
   organization      = "${var.organization}"
   ca_count          = "${var.masters + var.workers}"
-  ip_addresses_list = "${concat(digitalocean_droplet.master.*.ipv4_address, digitalocean_droplet.worker.*.ipv4_address)}"
   ssh_user          = "core"
   ssh_private_key   = "${tls_private_key.ssh.private_key_pem}"
 }
