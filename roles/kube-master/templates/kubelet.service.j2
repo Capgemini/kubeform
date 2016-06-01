@@ -16,7 +16,7 @@ ExecStart=/opt/bin/kubelet-wrapper \
   --hostname-override=${COREOS_PRIVATE_IPV4} \
   --cluster_dns={{ kubernetes_dns_service_ip }} \
   --cluster_domain={{ dns_domain }} \
-  --v={{ kubernetes_log_level }}{% if enable_cloud_provider %} \
+  --v={{ kubernetes_log_level }}{% if cloud_provider is defined %} \
   --cloud-provider={{ cloud_provider }} {% endif %}
 
 [Install]

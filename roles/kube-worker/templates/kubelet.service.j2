@@ -18,7 +18,7 @@ ExecStart=/opt/bin/kubelet-wrapper \
   --kubeconfig={{ kubernetes_config_dir }}/worker-kubeconfig \
   --tls-cert-file={{ kubernetes_cert_dir }}/kubelet.pem \
   --tls-private-key-file={{ kubernetes_cert_dir }}/kubelet-key.pem \
-  --v={{ kubernetes_log_level }}{% if enable_cloud_provider %} \
+  --v={{ kubernetes_log_level }}{% if cloud_provider is defined %} \
   --cloud-provider={{ cloud_provider }} {% endif %}
 
 [Install]
