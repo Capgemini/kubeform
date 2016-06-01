@@ -10,7 +10,7 @@ build:
         name: run ansible-lint against the site.yml playbook
         playbook: site.yml
     - capgemini/terraform-install:
-        version: 0.6.12
+        version: 0.6.16
     - script:
         name: terraform validate
         code: |
@@ -23,3 +23,16 @@ build:
           echo localhost > wercker_inventory
           ansible-galaxy install --force -r requirements.yml
           ansible-playbook -i wercker_inventory --syntax-check site.yml
+
+deploy:
+  # Override the python:2.7 box
+  box:
+    id: node:4-slim
+
+  steps:
+    - npm-install:
+        options: -g
+    - script:
+        name: generate docs
+        code: |
+          npm run docs:publish

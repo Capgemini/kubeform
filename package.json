@@ -26,6 +26,9 @@
   },
   "devDependencies": {
     "gitbook-cli": "^0.3.4",
-    "rimraf": "^2.3.4"
+    "gitbook-plugin-edit-link": "^1.4.2",
+    "gitbook-plugin-github": "^1.1.0",
+    "gitbook-plugin-prism": "^1.0.0",
+    "rimraf": "^2.5.2"
   }
 }
