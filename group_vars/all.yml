@@ -13,7 +13,7 @@ api_servers_group: masters
 kubernetes_image: quay.io/coreos/hyperkube
 
 # The docker container version to use for Kubernetes
-kubernetes_version: v1.2.2_coreos.0
+kubernetes_version: v1.2.4_coreos.1
 
 # Kubernetes log level. uses glog. See https://github.com/golang/glog
 # 0 - Generally useful for this to ALWAYS be visible to an operator
