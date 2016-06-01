@@ -4,15 +4,15 @@ Kubeform
 Core
 --------
 - [ ] High Availability Kubernetes
-- [ ] Kubernetes Dashboard
-- [ ] SkyDNS
+- [x] Kubernetes Dashboard
+- [x] SkyDNS
 - [ ] Networking
 - [x] Docker compose dev cluster
 
 Providers
 ---------
 - [ ] Vagrant
-- [ ] AWS
+- [x] AWS
 - [x] Digitalocean
 - [ ] Google Cloud
 - [ ] Openstack

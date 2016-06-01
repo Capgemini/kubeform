@@ -3,7 +3,7 @@
 kube_podmaster_version: 1.1
 kube_etcd_servers: "{% for host in groups[etcd_servers_group] %}http://{{ hostvars[host].ansible_default_ipv4.address }}:4001{% if not loop.last %},{% endif %}{% endfor %}"
 kube_apiserver_bind_address: "{{ hostvars[inventory_hostname].private.ip }}"
-kube_master: "{% if groups[api_servers_group]|length > 1 %}https://{{ kube_apiserver_vip }}{% else %}http://127.0.0.1:8080{% endif %}"
+kube_master: "{% if groups[api_servers_group]|length > 1 and kube_apiserver_vip is defined %}https://{{ kube_apiserver_vip }}{% else %}http://127.0.0.1:8080{% endif %}"
 kube_apiserver_count: "{{ groups[api_servers_group]|length }}"
 
 # Service account users
