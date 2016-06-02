@@ -34,4 +34,11 @@
   roles:
     - kube-worker
 
+- hosts: edge-routers
+  vars:
+    schedulable: false
+    node_labels: "role=edge-router"
+  roles:
+    - kube-worker
+
 - include: helm.yml

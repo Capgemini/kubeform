@@ -2,15 +2,21 @@
 
 [role=workers]
 
+[role=edge-routers]
+
 [masters:children]
 role=masters
 
 [workers:children]
 role=workers
 
+[edge-routers:children]
+role=edge-routers
+
 [all:children]
 masters
 workers
+edge-routers
 
 [all:vars]
 ansible_python_interpreter="PATH=/home/core/bin:$PATH python"
