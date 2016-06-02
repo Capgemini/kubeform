@@ -11,6 +11,7 @@ vendor
 .bundle
 .kitchen
 terraform/**/.terraform
+terraform/**/etcd_discovery_url.txt
 roles/coreos_timezone
 _builds
 _projects

@@ -70,8 +70,8 @@ module "kube_master_certs" {
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
   ip_addresses          = "${concat(aws_instance.master.*.private_ip, aws_instance.master.*.public_ip)}"
-  dns_names             = "${compact(module.master_elb.elb_dns_name)}"
-  deploy_ssh_hosts      = "${compact(aws_instance.master.*.public_ip)}"
+  dns_names             = ["${module.master_elb.elb_dns_name}"]
+  deploy_ssh_hosts      = ["${aws_instance.master.*.public_ip}"]
   master_count          = "${var.masters}"
   validity_period_hours = "8760"
   early_renewal_hours   = "720"
@@ -107,8 +107,8 @@ module "docker_daemon_certs" {
   deploy_ssh_hosts      = "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}"
   docker_daemon_count   = "${var.masters + var.workers + var.edge-routers}"
   private_key           = "${tls_private_key.ssh.private_key_pem}"
-  validity_period_hours = 8760
-  early_renewal_hours   = 720
+  validity_period_hours = "8760"
+  early_renewal_hours   = "720"
   user                  = "core"
 }
 
@@ -120,8 +120,8 @@ module "docker_client_certs" {
   deploy_ssh_hosts      = "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}"
   docker_client_count   = "${var.masters + var.workers + var.edge-routers}"
   private_key           = "${tls_private_key.ssh.private_key_pem}"
-  validity_period_hours = 8760
-  early_renewal_hours   = 720
+  validity_period_hours = "8760"
+  early_renewal_hours   = "720"
   user                  = "core"
 }
 
