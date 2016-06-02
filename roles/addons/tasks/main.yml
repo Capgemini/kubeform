@@ -35,6 +35,6 @@
 #- include: registry.yml
 #  when: setup_docker_registry and is_first_master|bool
 
-#- include: monitoring.yml
-#  when: enable_monitoring and is_first_master|bool
+- include: monitoring.yml
+  when: enable_monitoring and is_first_master|bool
 

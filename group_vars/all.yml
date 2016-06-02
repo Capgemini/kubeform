@@ -74,8 +74,9 @@ kubernetes_addons_dir: "{{ kubernetes_config_dir }}/addons"
 kubernetes_users_dir: "{{ kubernetes_config_dir }}/users"
 kubernetes_podmaster_dir: "{{ kubernetes_script_dir }}/manifests"
 
-# Whether to enable the kubernetes-dashboard
+# kubernetes addons toggles
 enable_dashboard: true
+enable_monitoring: false
 
 # DNS domain for SkyDNS + Kubelet
 dns_domain: cluster.local

@@ -1,0 +1,76 @@
+---
+# Monitoring addon - InfluxDB / Heapster / Grafana
+- name: create monitoring pod replication controller and service files
+  become: yes
+  copy:
+    src: "{{ item }}"
+    dest: "{{ kubernetes_manifest_dir }}/{{ item }}"
+  with_items:
+    - heapster-rc.yaml
+    - heapster-svc.yaml
+    - influxdb-grafana-rc.yaml
+    - influxdb-svc.yaml
+    - grafana-svc.yaml
+  tags:
+    - addons
+    - monitoring
+
+- name: Create influxdb replication controller
+  become: yes
+  kubernetes:
+    api_endpoint: "{{ kubectl_endpoint }}"
+    url_username: "{{ kubectl_username }}"
+    url_password: "{{ kubectl_password }}"
+    file_reference: "{{ kubernetes_manifest_dir }}/influxdb-grafana-rc.yaml"
+    state: present
+  tags:
+    - addons
+    - monitoring
+
+- name: Create influxdb service
+  become: yes
+  kubernetes:
+    api_endpoint: "{{ kubectl_endpoint }}"
+    url_username: "{{ kubectl_username }}"
+    url_password: "{{ kubectl_password }}"
+    file_reference: "{{ kubernetes_manifest_dir }}/influxdb-svc.yaml"
+    state: present
+  tags:
+    - addons
+    - monitoring
+
+- name: Create grafana service
+  become: yes
+  kubernetes:
+    api_endpoint: "{{ kubectl_endpoint }}"
+    url_username: "{{ kubectl_username }}"
+    url_password: "{{ kubectl_password }}"
+    file_reference: "{{ kubernetes_manifest_dir }}/grafana-svc.yaml"
+    state: present
+  tags:
+    - addons
+    - monitoring
+
+- name: Create heapster replication controller
+  become: yes
+  kubernetes:
+    api_endpoint: "{{ kubectl_endpoint }}"
+    url_username: "{{ kubectl_username }}"
+    url_password: "{{ kubectl_password }}"
+    file_reference: "{{ kubernetes_manifest_dir }}/heapster-rc.yaml"
+    state: present
+  tags:
+    - addons
+    - monitoring
+
+- name: Create heapster service
+  become: yes
+  kubernetes:
+    api_endpoint: "{{ kubectl_endpoint }}"
+    url_username: "{{ kubectl_username }}"
+    url_password: "{{ kubectl_password }}"
+    file_reference: "{{ kubernetes_manifest_dir }}/heapster-svc.yaml"
+    state: present
+  tags:
+    - addons
+    - monitoring
