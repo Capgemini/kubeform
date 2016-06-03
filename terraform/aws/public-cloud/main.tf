@@ -10,6 +10,9 @@ variable "master_instance_type" { default = "m3.medium" }
 variable "workers" { default = "1" }
 variable "worker_instance_type" { default = "m3.medium" }
 variable "worker_ebs_volume_size" { default = "30" }
+variable "edge-routers" { default = "1" }
+variable "edge-router_instance_type" { default = "m3.medium" }
+variable "edge-router_ebs_volume_size" { default = "30" }
 variable "vpc_cidr_block" { default = "10.0.0.0/16" }
 
 provider "aws" {
@@ -50,8 +53,8 @@ module "aws-keypair" {
 module "ca" {
   source            = "github.com/Capgemini/tf_tls/ca"
   organization      = "${var.organization}"
-  ca_count          = "${var.masters + var.workers}"
-  deploy_ssh_hosts  = "${concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip)}"
+  ca_count          = "${var.masters + var.workers + var.edge-routers}"
+  deploy_ssh_hosts  = "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}"
   ssh_user          = "core"
   ssh_private_key   = "${tls_private_key.ssh.private_key_pem}"
 }
@@ -80,9 +83,9 @@ module "kube_kubelet_certs" {
   source                = "github.com/Capgemini/tf_tls/kubernetes/kubelet"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
-  ip_addresses          = "${concat(aws_instance.worker.*.private_ip, aws_instance.master.*.private_ip)}"
-  deploy_ssh_hosts      = "${concat(aws_instance.worker.*.public_ip, aws_instance.master.*.public_ip)}"
-  kubelet_count         = "${var.masters + var.workers}"
+  ip_addresses          = "${concat(aws_instance.edge-router.*.private_ip, concat(aws_instance.master.*.private_ip, aws_instance.worker.*.private_ip))}"
+  deploy_ssh_hosts      = "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}"
+  kubelet_count         = "${var.masters + var.workers + var.edge-routers}"
   validity_period_hours = "8760"
   early_renewal_hours   = "720"
   ssh_user              = "core"
@@ -100,9 +103,9 @@ module "docker_daemon_certs" {
   source                = "github.com/Capgemini/tf_tls/docker/daemon"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
-  ip_addresses_list     = "${concat(aws_instance.master.*.private_ip, aws_instance.worker.*.private_ip)}"
-  deploy_ssh_hosts      = "${concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip)}"
-  docker_daemon_count   = "${var.masters + var.workers}"
+  ip_addresses_list     = "${concat(aws_instance.edge-router.*.private_ip, concat(aws_instance.master.*.private_ip, aws_instance.worker.*.private_ip))}"
+  deploy_ssh_hosts      = "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}"
+  docker_daemon_count   = "${var.masters + var.workers + var.edge-routers}"
   private_key           = "${tls_private_key.ssh.private_key_pem}"
   validity_period_hours = 8760
   early_renewal_hours   = 720
@@ -113,9 +116,9 @@ module "docker_client_certs" {
   source                = "github.com/Capgemini/tf_tls/docker/client"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
-  ip_addresses_list     = "${concat(aws_instance.master.*.private_ip, aws_instance.worker.*.private_ip)}"
-  deploy_ssh_hosts      = "${concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip)}"
-  docker_client_count   = "${var.masters + var.workers}"
+  ip_addresses_list     = "${concat(aws_instance.edge-router.*.private_ip, concat(aws_instance.master.*.private_ip, aws_instance.worker.*.private_ip))}"
+  deploy_ssh_hosts      = "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}"
+  docker_client_count   = "${var.masters + var.workers + var.edge-routers}"
   private_key           = "${tls_private_key.ssh.private_key_pem}"
   validity_period_hours = 8760
   early_renewal_hours   = 720

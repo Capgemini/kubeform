@@ -11,6 +11,10 @@ Environment=KUBELET_VERSION={{ kubernetes_version }}
 ExecStart=/opt/bin/kubelet-wrapper \
   --api-servers={{ kube_api_servers }} \
   --allow-privileged=true \
+  --register-schedulable={{ schedulable }} \
+  {% if node_labels != "" %}
+  --node-labels="{{ node_labels }}" \
+  {% endif %}
   --config=/etc/kubernetes/manifests \
   --hostname-override=${COREOS_PRIVATE_IPV4} \
   --cluster_dns={{ kubernetes_dns_service_ip }} \

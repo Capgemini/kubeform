@@ -26,6 +26,9 @@
 - include: dashboard.yml
   when: enable_dashboard and is_first_master|bool
 
+- include: "{{ ingress_controller }}.yml"
+  when: is_first_master|bool
+
 #- include: logging.yml
 #  when: enable_logging and is_first_master|bool
 
