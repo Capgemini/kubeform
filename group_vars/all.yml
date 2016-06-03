@@ -79,6 +79,3 @@ enable_dashboard: true
 
 # DNS domain for SkyDNS + Kubelet
 dns_domain: cluster.local
-
-# Toggle for cloud provider support for Kubelet
-enable_cloud_provider: false
