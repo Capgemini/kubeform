@@ -46,10 +46,17 @@ export TF_VAR_do_token=$DO_API_TOKEN
 export TF_VAR_STATE_ROOT=/tmp/kubeform/terraform/digitalocean
 ```
 
-### Provision the cluster infrastructure
+### Get terraform dependencies
 
 ```
 cd /tmp/kubeform/terraform/digitalocean
+terraform get
+for i in $(ls .terraform/modules/*/Makefile); do i=$(dirname $i); make -C $i; done
+```
+
+### Provision the cluster infrastructure
+
+```
 terraform apply
 ```
 

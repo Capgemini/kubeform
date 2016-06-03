@@ -21,7 +21,7 @@ Includes the following -
 
 and optionally -
 
-* Heapster, InfluxDB for cluster monitoring
+* Prometheus for cluster monitoring (coming soon!)
 * Fluentd, elasticsearch for cluster logging
 
 See our Roadmap for future features and feel free to help us improve the project

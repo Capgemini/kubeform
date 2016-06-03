@@ -48,10 +48,17 @@ export TF_VAR_secret_key=$AWS_SECRET_ACCESS_KEY
 export TF_VAR_STATE_ROOT=/tmp/kubeform/terraform/aws/public-cloud
 ```
 
-### Provision the cluster infrastructure
+### Get terraform dependencies
 
 ```
 cd /tmp/kubeform/terraform/aws/public-cloud
+terraform get
+for i in $(ls .terraform/modules/*/Makefile); do i=$(dirname $i); make -C $i; done
+```
+
+### Provision the cluster infrastructure
+
+```
 terraform apply
 ```
 
