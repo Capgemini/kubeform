@@ -61,7 +61,7 @@ module "master_elb" {
   source             = "../elb"
   security_groups    = "${module.sg-default.security_group_id}"
   instances          = "${compact(aws_instance.master.*.id)}"
-  subnets            = "${compact(aws_instance.master.*.subnet_id)}"
+  subnets            = "${compact(split(",", module.public_subnet.subnet_ids))}"
 }
 
 output "master_ips" {
