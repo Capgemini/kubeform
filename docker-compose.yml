@@ -2,31 +2,32 @@ version: '2'
 services:
   etcd:
     image: gcr.io/google_containers/etcd:2.0.12
+    network_mode: host
     container_name: etcd
     command: ['/usr/local/bin/etcd', '--bind-addr=0.0.0.0:4001', '--data-dir=/var/etcd/data']
 
   apiserver:
     image: gcr.io/google_containers/hyperkube:v${KUBERNETES_VERSION}
+    network_mode: host
     container_name: apiserver
     ports:
       - "8080"
-    command: ["/hyperkube", "apiserver", "--service-cluster-ip-range=172.17.17.1/24", "--address=0.0.0.0", "--etcd_servers=http://etcd:4001", "--cluster_name=kubernetes", "--v=2"]
+    command: ["/hyperkube", "apiserver", "--service-cluster-ip-range=172.17.17.1/24", "--insecure-bind-address=127.0.0.1", "--insecure-port=8080", "--etcd_servers=http://127.0.0.1:4001", "--v=2"]
 
   controller:
     image: gcr.io/google_containers/hyperkube:v${KUBERNETES_VERSION}
-    command: ["/hyperkube", "controller-manager", "--address=0.0.0.0", "--master=http://apiserver:8080", "--v=2"]
-    environment:
-      - "affinity:container==*apiserver*"
+    network_mode: host
+    command: ["/hyperkube", "controller-manager", "--address=0.0.0.0", "--master=http://127.0.0.1:8080", "--v=2"]
 
   scheduler:
     image: gcr.io/google_containers/hyperkube:v${KUBERNETES_VERSION}
-    command: ["/hyperkube", "scheduler", "--address=0.0.0.0", "--master=http://apiserver:8080", "--v=2"]
-    environment:
-      - "affinity:container==*apiserver*"
+    network_mode: host
+    command: ["/hyperkube", "scheduler", "--address=0.0.0.0", "--master=http://127.0.0.1:8080", "--v=2"]
 
   kubelet:
     image: gcr.io/google_containers/hyperkube:v${KUBERNETES_VERSION}
-    command: ['/hyperkube', 'kubelet', '--containerized' , '--api_servers=http://apiserver:8080', '--v=2', '--address=0.0.0.0', '--enable_server']
+    network_mode: host
+    command: ['/hyperkube', 'kubelet', '--containerized' , '--api_servers=http://127.0.0.1:8080', '--v=2', '--address=0.0.0.0', '--enable_server']
     volumes:
       - /:/rootfs:ro
       - /sys:/sys:ro
@@ -36,15 +37,9 @@ services:
       - /var/lib/kubelet/:/var/lib/kubelet:rw
       - /var/run:/var/run:rw
     privileged: true
-    # A kubelet shouldn't run alongside another kubelet - One privileged kubelet per node
-    environment:
-      - "affinity:container!=*kubelet*"
 
   proxy:
     image: gcr.io/google_containers/hyperkube:v${KUBERNETES_VERSION}
-    command: ['/hyperkube', 'proxy', '--master=http://apiserver:8080', '--v=2']
+    network_mode: host
+    command: ['/hyperkube', 'proxy', '--master=http://127.0.0.1:8080', '--v=2']
     privileged: true
-    # A proxy should run alongside another kubelet but not alongside another proxy
-    environment:
-      - "affinity:container==*kubelet*"
-      - "affinity:container!=*proxy*"

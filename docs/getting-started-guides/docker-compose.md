@@ -16,7 +16,7 @@ cd /tmp/kubeform
 To start up the Docker containers execute:
 
 ```
-KUBERNETES_VERSION=1.2.0 docker-compose up -d
+KUBERNETES_VERSION=1.2.4 docker-compose up -d
 ```
 
 replace with the relevant Kubernetes version.
