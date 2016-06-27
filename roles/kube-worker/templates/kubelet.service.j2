@@ -18,6 +18,7 @@ ExecStart=/opt/bin/kubelet-wrapper \
   --config=/etc/kubernetes/manifests \
   --hostname-override=${COREOS_PRIVATE_IPV4} \
   --cluster_dns={{ kubernetes_dns_service_ip }} \
+  --hairpin-mode=promiscuous-bridge \
   --cluster_domain={{ dns_domain }} \
   --kubeconfig={{ kubernetes_config_dir }}/worker-kubeconfig \
   --tls-cert-file={{ kubernetes_cert_dir }}/kubelet.pem \

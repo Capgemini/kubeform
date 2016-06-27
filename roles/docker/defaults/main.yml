@@ -8,7 +8,12 @@ docker_bridge_ip: ''
 docker_proxy_exceptions: ''
 docker_registry: ''
 private_docker_registry: false
+docker_content_trust: 1
+docker_authz_enabled: false
+docker_policy_dir: '/opt/authz-broker'
+docker_authz_image: 'capgemini/authz-broker'
+docker_authz: "--userns-remap=default --authorization-plugin=authz-broker"
 docker_tls: "--tlsverify --tlscacert=/etc/docker/ca.pem --tlscert=/etc/docker/server.pem --tlskey=/etc/docker/server-key.pem"
-docker_customisations: "{{ docker_endpoints }} {{ docker_tls }} {{ docker_bridge_ip }} {{ docker_storage_config }} {{ docker_dns_config }} {{ docker_registry }}"
+docker_customisations: "{{ docker_endpoints }} {% if docker_authz_enabled %} {{ docker_authz }} {% endif %} {{ docker_tls }} {{ docker_bridge_ip }} {{ docker_storage_config }} {{ docker_dns_config }} {{ docker_registry }}"
 
 

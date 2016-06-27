@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: dex-worker
+spec:
+  # Uncomment this section to enable tls, after creating a [tls
+  # secret](http://kubernetes.io/docs/user-guide/ingress/#tls) with the
+  # appropriate name.
+  # tls:
+  # - secretName: dex.example.com.tls
+  #   hosts:
+  #   - dex.example.com
+  rules:
+  # Make sure to add dex.example.com to your /etc/hosts or DNS server if you
+  # run one locally.
+  - host: dex.capgeminidigital.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: dex-worker
+          servicePort: 5556

@@ -26,6 +26,11 @@ spec:
       - mountPath: {{ kubernetes_cert_dir }}
         name: etc-kube-ssl
         readOnly: true
+  securityContext:
+    fsGroup: 1234
+    supplementalGroups: [5678]
+    seLinuxOptions:
+      level: "s0:c123,c456"
   volumes:
     - name: ssl-certs
       hostPath:

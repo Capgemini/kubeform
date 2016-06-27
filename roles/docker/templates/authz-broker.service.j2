@@ -1,0 +1,22 @@
+[Unit]
+Description=Twistlock docker authorization plugin
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+RestartSec=10
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill authz-broker
+ExecStartPre=-/usr/bin/docker rm authz-broker
+ExecStartPre=/usr/bin/docker pull {{ docker_authz_image }}
+ExecStart=/usr/bin/docker run --name authz-broker \
+--restart=always \
+-v {{ docker_policy_dir }}/policy.json:/var/lib/authz-broker/policy.json \
+-v /run/docker/plugins/:/run/docker/plugins \
+{{ docker_authz_image }}
+
+ExecStop=/usr/bin/docker stop authz-broker
+
+[Install]
+WantedBy=multi-user.target

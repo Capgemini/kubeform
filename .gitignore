@@ -14,6 +14,7 @@ terraform/**/.terraform
 terraform/**/etcd_discovery_url.txt
 site.retry
 roles/coreos_timezone
+roles/selinux
 _builds
 _projects
 _steps

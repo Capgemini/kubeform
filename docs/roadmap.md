@@ -36,5 +36,7 @@ Security
 --------
 - [ ] Certs for all services
 - [ ] Lets encrypt support
-- [x] IAM
-- [ ] Network policies support
+- [ ] IAM (IaaS & Platform)
+- [ ] Vault
+- [ ] Service Accounts & Security Contexts
+- [ ] Networking Policy

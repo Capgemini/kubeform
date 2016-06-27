@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+KUBEFORM_ROOT=$(dirname "${BASH_SOURCE}")/..
+source "${KUBEFORM_ROOT}/bootstrap/kubeform-env.sh"
+source "${KUBEFORM_ROOT}/bootstrap/common.sh"
+source "${KUBEFORM_ROOT}/bootstrap/${KUBEFORM_PROVIDER}/util.sh"
+
+main() {
+  echo "Starting cluster using provider: $KUBEFORM_PROVIDER" >&2
+
+  echo "... calling verify-prereqs" >&2
+  verify_prereqs
+
+  echo "... calling kubeform" >&2
+  if [[ "$1" == "up" ]]; then
+    kubeform_launch
+  else 
+    kubeform_down
+  fi
+
+}
+
+main $@
+exit 0

@@ -19,6 +19,7 @@ spec:
     - --service-cluster-ip-range={{ kubernetes_service_ip_range }}
     - --secure-port=443
     - --insecure_port=8080
+    - --cors_allowed_origins=http://*.cluster.local
     - --advertise-address={{ ansible_default_ipv4.address }}
     - --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota
     - --tls-cert-file={{ kubernetes_cert_dir }}/master.pem

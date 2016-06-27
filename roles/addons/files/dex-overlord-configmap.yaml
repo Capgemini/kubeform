@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dex-connectors
+data:
+  connector.json: |
+    [
+      {
+        "id": "local",
+        "type": "local"
+      }
+    ]
+  google-connector.json: | 
+    [{
+      "id": "google",
+      "type": "oidc",
+      "issuerURL": "https://accounts.google.com",
+      "clientID": "1080782312210-59qtnlthek24kj2to6voa6lqrm45f806.apps.googleusercontent.com",
+      "clientSecret": "_24NGBOfCTfPOCsg6yti8FrB",
+      "trustedEmailProvider": true
+    }]

@@ -1,0 +1,118 @@
+---
+# create kubernetes-dex
+- name: create dex db files
+  become: yes
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items: 
+    - src: dex-db-deploy.yaml
+      dest: "{{ kubernetes_addons_dir }}/dex-db-deploy.yaml"
+    - src: dex-db-svc.yaml
+      dest: "{{ kubernetes_addons_dir }}/dex-db-svc.yaml"
+  tags:
+    - addons
+    - dashboard
+
+- name: create dex overlord files
+  become: yes
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items: 
+    - src: dex-overlord-deploy.yaml
+      dest: "{{ kubernetes_addons_dir }}/dex-overlord-deploy.yaml"
+    - src: dex-overlord-svc.yaml
+      dest: "{{ kubernetes_addons_dir }}/dex-overlord-svc.yaml"
+    - src: dex-overlord-configmap.yaml
+      dest: "{{ kubernetes_addons_dir }}/dex-overlord-configmap.yaml"
+    - src: dex-overlord-secret.yaml
+      dest: "{{ kubernetes_addons_dir }}/dex-overlord-secret.yaml"
+  tags:
+    - addons
+    - dashboard
+
+- name: create dex worker files
+  become: yes
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items: 
+    - src: dex-worker-deploy.yaml
+      dest: "{{ kubernetes_addons_dir }}/dex-worker-deploy.yaml"
+    - src: dex-worker-svc.yaml
+      dest: "{{ kubernetes_addons_dir }}/dex-worker-svc.yaml"
+    - src: dex-worker-ingress.yaml
+      dest: "{{ kubernetes_addons_dir }}/dex-worker-ingress.yaml"
+  tags:
+    - addons
+    - dashboard
+
+- name: Create dex db 
+  become: yes
+  kube:
+    resource: "{{ item.rc }}"
+    name: dex-postgres
+    namespace: kube-system
+    filename: "{{ item.filename }}"
+    state: present
+  with_items: 
+    - rc: deployment
+      filename: "{{ kubernetes_addons_dir }}/dex-db-deploy.yaml"
+    - rc: svc
+      filename: "{{ kubernetes_addons_dir }}/dex-db-svc.yaml"
+  run_once: true
+  tags:
+    - addons
+    - dashboard
+
+- name: Create dex overlord
+  become: yes
+  kube:
+    resource: "{{ item.rc }}"
+    name: "{{ item.name }}"
+    namespace: kube-system
+    filename: "{{ item.filename }}"
+    state: present
+  with_items: 
+    - rc: secret
+      name: dex
+      filename: "{{ kubernetes_addons_dir }}/dex-overlord-secret.yaml"
+    - rc: configmap
+      name: dex-connectors
+      filename: "{{ kubernetes_addons_dir }}/dex-overlord-configmap.yaml"
+    - rc: deployment
+      name: dex-overlord
+      filename: "{{ kubernetes_addons_dir }}/dex-overlord-deploy.yaml"
+    - rc: svc
+      name: dex-overlord
+      filename: "{{ kubernetes_addons_dir }}/dex-overlord-svc.yaml"
+  run_once: true
+  tags:
+    - addons
+    - dashboard
+
+- name: Create dex worker
+  become: yes
+  kube:
+    resource: "{{ item.rc }}"
+    name: "{{ item.name }}"
+    namespace: kube-system
+    filename: "{{ item.filename }}"
+    state: present
+  with_items: 
+    - rc: deployment
+      name: dex-worker
+      filename: "{{ kubernetes_addons_dir }}/dex-worker-deploy.yaml"
+    - rc: svc
+      name: dex-worker
+      filename: "{{ kubernetes_addons_dir }}/dex-worker-deploy.yaml"
+    - rc: ing
+      name: dex-worker
+      filename: "{{ kubernetes_addons_dir }}/dex-worker-deploy.yaml"
+  run_once: true
+  register: dexworker
+  ignore_errors: True
+  tags:
+    - addons
+    - dashboard

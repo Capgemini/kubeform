@@ -1,0 +1,69 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: dex
+    role: worker
+  name: dex-worker
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dex
+        role: worker
+    spec:
+      containers:
+          - image: quay.io/coreos/dex
+            name: dex-worker
+            env:
+              - name: DEX_WORKER_ISSUER
+                value: http://dex.example.com
+                # enable https if you have configured your Ingress with TLS
+                # value: https://dex.example.com
+              - name: DEX_WORKER_DB_URL
+                value: postgres://postgres@dex-postgres:5432/postgres?sslmode=disable
+              - name: DEX_WORKER_EMAIL_CFG
+                value: /opt/dex/email/emailer.json
+              - name: DEX_WORKER_LISTEN
+                value: http://0.0.0.0:5556
+              - name: DEX_WORKER_KEY_SECRETS
+                valueFrom:
+                  secretKeyRef:
+                    name: dex
+                    key: key-secrets
+              - name: DEX_WORKER_ENABLE_REGISTRATION
+                value: "true"
+            command:
+              - "/opt/dex/bin/dex-worker"
+            ports:
+            - containerPort: 5556
+              name: worker-port
+            readinessProbe:
+              httpGet: &health
+                path: /health
+                port: 5556
+              timeoutSeconds: 1
+              periodSeconds: 2
+            livenessProbe:
+              httpGet: *health
+              initialDelaySeconds: 15
+              timeoutSeconds: 1
+            resources:
+              requests: { cpu: 200m, memory: 256Mi }
+            # In production, you will likely want to include your own trusted
+            # /etc/ca-certificates and /etc/ssl in your container.
+            volumeMounts:
+              - name: ca
+                mountPath: /etc/ca-certificates
+                readOnly: true
+              - name: ssl
+                mountPath: /etc/ssl
+                readOnly: true
+      volumes:
+        - name: ca
+          hostPath:
+            path: /etc/ca-certificates
+        - name: ssl
+          hostPath:
+            path: /etc/ssl

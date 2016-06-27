@@ -21,13 +21,30 @@
     - kubernetes
 
 - include: skydns.yml
-  when: is_first_master|bool
+  run_once: true
+  tags:
+    - addons
+    - kubernetes
 
 - include: dashboard.yml
-  when: enable_dashboard and is_first_master|bool
+  when: enable_dashboard
+  run_once: true
+  tags:
+    - addons
+    - kubernetes
+
+- include: dex.yml
+  when: enable_dex
+  run_once: true
+  tags:
+    - addons
+    - kubernetes
 
 - include: "{{ ingress_controller }}.yml"
-  when: is_first_master|bool
+  run_once: true
+  tags:
+    - addons
+    - kubernetes
 
 #- include: logging.yml
 #  when: enable_logging and is_first_master|bool

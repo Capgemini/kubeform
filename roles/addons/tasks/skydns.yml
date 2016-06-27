@@ -26,6 +26,8 @@
     namespace: kube-system
     filename: "{{ kubernetes_addons_dir }}/skydns-rc.yaml"
     state: present
+  register: sky
+  ignore_errors: True
   tags:
     - addons
     - skydns

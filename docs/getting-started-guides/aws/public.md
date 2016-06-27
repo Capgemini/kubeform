@@ -14,13 +14,13 @@ The cluster is provisioned in separate stages as follows:
 5. Kubectl installed in and your PATH:
 
 ```
-curl -O https://storage.googleapis.com/kubernetes-release/release/v1.2.3/bin/linux/amd64/kubectl
+curl -k -O https://storage.googleapis.com/kubernetes-release/release/v1.2.4/bin/linux/amd64/kubectl
 ```
 
 On an OS X workstation, replace linux in the URL above with darwin:
 
 ```
-curl -O https://storage.googleapis.com/kubernetes-release/release/v1.2.3/bin/darwin/amd64/kubectl
+curl -k -O https://storage.googleapis.com/kubernetes-release/release/v1.2.4/bin/darwin/amd64/kubectl
 ```
 After downloading the binary, ensure it is executable and move it into your PATH:
 
