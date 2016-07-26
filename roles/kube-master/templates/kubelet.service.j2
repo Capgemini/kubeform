@@ -6,10 +6,13 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 Restart=always
 RestartSec=10
 ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
+ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/cni/net.d
 EnvironmentFile=/etc/environment
 Environment=KUBELET_VERSION={{ kubernetes_version }}
 ExecStart=/opt/bin/kubelet-wrapper \
   --api-servers=http://127.0.0.1:8080 \
+  --network-plugin-dir=/etc/kubernetes/cni/net.d \
+  --network-plugin=cni \
   --register-schedulable=false \
   --allow-privileged=true \
   --config=/etc/kubernetes/manifests \

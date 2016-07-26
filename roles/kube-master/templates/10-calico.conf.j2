@@ -1,0 +1,15 @@
+{
+    "name": "calico",
+    "type": "flannel",
+    "delegate": {
+        "type": "calico",
+        "etcd_endpoints": "{{ kube_etcd_servers }}",
+        "log_level": "none",
+        "log_level_stderr": "info",
+        "hostname": "${COREOS_PRIVATE_IPV4}",
+        "policy": {
+            "type": "k8s",
+            "k8s_api_root": "http://127.0.0.1:8080/api/v1/"
+        }
+    }
+}

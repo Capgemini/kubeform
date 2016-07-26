@@ -1,0 +1,7 @@
+apiVersion: extensions/v1beta1
+kind: ThirdPartyResource
+metadata:
+  name: network-policy.net.alpha.kubernetes.io
+description: "Calico Network policy specification"
+versions:
+- name: v1alpha1

@@ -12,6 +12,7 @@
   with_items:
     - "{{ kubernetes_config_dir }}"
     - "{{ kubernetes_script_dir }}"
+    - "{{ kubernetes_cni_dir }}"
   become: yes
   tags:
     - kube-worker
@@ -49,6 +50,26 @@
   tags:
     - kube-worker
 
+- name: deploy calico-node service
+  become: yes
+  template:
+    src: calico-node.service.j2
+    dest: /etc/systemd/system/calico-node.service
+  notify:
+    - reload systemd
+    - restart calico-node
+  tags:
+    - kube-worker
+
+- name: ensure calico-node is running
+  become: yes
+  service:
+    name: calico-node
+    state: started
+    enabled: yes
+  tags:
+    - kube-worker
+
 - name: deploy kube-worker manifests
   become: yes
   template:
@@ -59,5 +80,7 @@
       dest: "{{ kubernetes_config_dir }}/worker-kubeconfig"
     - src: kube-proxy.yaml.j2
       dest: "{{ kubernetes_manifest_dir }}/kube-proxy.yaml"
+    - src: "10-{{ network_plugin }}.yaml.j2"
+      dest: "{{ kubernetes_cni_dir }}/10-{{ network_plugin }}.yaml"
   tags:
     - kube-worker

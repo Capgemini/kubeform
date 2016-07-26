@@ -1,0 +1,26 @@
+[Unit]
+Description=Calico node for network policy
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Slice=machine.slice
+KillMode=mixed
+Restart=always
+TimeoutStartSec=0
+Environment=CALICO_DISABLE_FILE_LOGGING=true
+Environment=HOSTNAME=${COREOS_PRIVATE_IPV4}
+Environment=IP=${COREOS_PRIVATE_IPV4}
+Environment=FELIX_FELIXHOSTNAME=${COREOS_PRIVATE_IPV4}
+Environment=CALICO_NETWORKING=false
+Environment=NO_DEFAULT_POOLS=true
+Environment=ETCD_ENDPOINTS={{ kube_etcd_servers }}
+ExecStart=/usr/bin/rkt run \
+  --inherit-env \
+  --stage1-from-dir=stage1-fly.aci \
+  --volume=modules,kind=host,source=/lib/modules,readOnly=false \
+  --mount=volume=modules,target=/lib/modules \
+  --trust-keys-from-https quay.io/calico/node:v0.20.0
+
+[Install]
+WantedBy=multi-user.target

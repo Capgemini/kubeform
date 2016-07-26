@@ -14,6 +14,7 @@
     - "{{ kubernetes_script_dir }}"
     - "{{ kubernetes_podmaster_dir }}"
     - "{{ kubernetes_addons_dir }}"
+    - "{{ kubernetes_cni_dir }}"
   become: yes
   tags:
     - kube-master
@@ -66,6 +67,30 @@
   tags:
     - kube-master
 
+# master
+- name: deploy calico-node service
+  become: yes
+  template:
+    src: calico-node.service.j2
+    dest: /etc/systemd/system/calico-node.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - reload systemd
+    - restart calico-node
+  tags:
+    - kube-master
+
+- name: ensure calico-node is running
+  become: yes
+  service:
+    name: calico-node
+    state: started
+    enabled: yes
+  tags:
+    - kube-master
+
 - name: deploy kube-master manifests
   become: yes
   template:
@@ -87,9 +112,16 @@
       dest: "{{ kubernetes_podmaster_dir }}/kube-scheduler.yaml"
     - src: master-kubeconfig.j2
       dest: "{{ kubernetes_config_dir }}/master-kubeconfig"
+    - src: policy-agent.yaml.j2
+      dest: "{{ kubernetes_manifest_dir }}/policy-agent.yaml"
+    - src: "10-{{ network_plugin }}.conf.j2"
+      dest: "{{ kubernetes_cni_dir }}/10-{{ network_plugin }}.conf"
+    - src: "third-party-res-def.yaml"
+      dest: "{{ kubernetes_manifest_dir }}/third-party-res-def.yaml"
   notify:
     - reload systemd
     - restart kubelet
+    - restart calico-node
   tags:
     - kube-master
 

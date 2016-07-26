@@ -1,0 +1,17 @@
+{
+    "name": "calico",
+    "type": "flannel",
+    "delegate": {
+        "type": "calico",
+        "etcd_endpoints": "{{ kube_etcd_servers }}",
+        "log_level": "none",
+        "log_level_stderr": "info",
+        "hostname": "${COREOS_PRIVATE_IPV4}",
+        "policy": {
+            "type": "k8s",
+            "k8s_api_root": "https://{{ kube_api_servers }}:443/api/v1/",
+            "k8s_client_key": "{{ kubernetes_cert_dir }}/kubelet-key.pem",
+            "k8s_client_certificate": "{{ kubernetes_cert_dir }}/kubelet.pem"
+        }
+    }
+}

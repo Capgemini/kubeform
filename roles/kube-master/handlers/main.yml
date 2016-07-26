@@ -11,3 +11,9 @@
   service:
     name: kubelet
     state: restarted
+
+- name: restart calico-node
+  become: yes
+  service:
+    name: calico-node
+    state: restarted

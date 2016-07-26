@@ -26,7 +26,7 @@ spec:
     - --client-ca-file={{ kubernetes_cert_dir }}/ca.pem
     - --service-account-key-file={{ kubernetes_cert_dir }}/master-key.pem
     - --basic-auth-file={{ kubernetes_users_dir }}/known_users.csv
-    - --runtime-config=extensions/v1beta1/deployments=true,extensions/v1beta1/daemonsets=true
+    - --runtime-config=extensions/v1beta1=true,extensions/v1beta1/thirdpartyresources=true,extensions/v1beta1/networkpolicies=true
     - --v={{ kubernetes_log_level }}
     ports:
     - containerPort: 443

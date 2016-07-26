@@ -16,7 +16,7 @@ api_servers_group: masters
 kubernetes_image: quay.io/coreos/hyperkube
 
 # The docker container version to use for Kubernetes
-kubernetes_version: v1.2.4_coreos.1
+kubernetes_version: v1.2.4_coreos.cni.1
 
 # Kubernetes log level. uses glog. See https://github.com/golang/glog
 # 0 - Generally useful for this to ALWAYS be visible to an operator
@@ -76,6 +76,14 @@ kubernetes_manifest_dir: "{{ kubernetes_config_dir }}/manifests"
 kubernetes_addons_dir: "{{ kubernetes_config_dir }}/addons"
 kubernetes_users_dir: "{{ kubernetes_config_dir }}/users"
 kubernetes_podmaster_dir: "{{ kubernetes_script_dir }}/manifests"
+kubernetes_cni_dir: "{{ kubernetes_script_dir }}/cni/net.d"
+
+# Network CNI plugin to use. Supported:
+# - Calico
+# - Romana - Coming soon...
+# - OpenContrail - Coming soon...
+# - OpenShift - Coming soon...
+network_plugin: 'calico'
 
 # Whether to enable the kubernetes-dashboard
 enable_dashboard: true
