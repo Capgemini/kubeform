@@ -59,6 +59,7 @@ for i in $(ls .terraform/modules/*/Makefile); do i=$(dirname $i); make -C $i; do
 ### Provision the cluster infrastructure
 
 ```
+rm -f etcd_discovery_url.txt && terraform apply -target=null_resource.etcd_discovery_url
 terraform apply
 ```
 

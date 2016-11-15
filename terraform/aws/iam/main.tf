@@ -2,13 +2,13 @@
 resource "aws_iam_role" "master_role" {
   name               = "master_role"
   path               = "/"
-  assume_role_policy = "${file(\"${path.module}/master-role.json\")}"
+  assume_role_policy = "${file("${path.module}/master-role.json")}"
 }
 
 resource "aws_iam_role_policy" "master_policy" {
   name   = "master_policy"
   role   = "${aws_iam_role.master_role.id}"
-  policy = "${file(\"${path.module}/master-policy.json\")}"
+  policy = "${file("${path.module}/master-policy.json")}"
 }
 
 resource "aws_iam_instance_profile" "master_profile" {
@@ -20,13 +20,13 @@ resource "aws_iam_instance_profile" "master_profile" {
 resource "aws_iam_role" "worker_role" {
   name               = "worker_role"
   path               = "/"
-  assume_role_policy = "${file(\"${path.module}/worker-role.json\")}"
+  assume_role_policy = "${file("${path.module}/worker-role.json")}"
 }
 
 resource "aws_iam_role_policy" "worker_policy" {
   name   = "worker_policy"
   role   = "${aws_iam_role.worker_role.id}"
-  policy = "${file(\"${path.module}/worker-policy.json\")}"
+  policy = "${file("${path.module}/worker-policy.json")}"
 }
 
 resource "aws_iam_instance_profile" "worker_profile" {
@@ -38,13 +38,13 @@ resource "aws_iam_instance_profile" "worker_profile" {
 resource "aws_iam_role" "edge-router_role" {
   name               = "edge-router_role"
   path               = "/"
-  assume_role_policy = "${file(\"${path.module}/edge-router-role.json\")}"
+  assume_role_policy = "${file("${path.module}/edge-router-role.json")}"
 }
 
 resource "aws_iam_role_policy" "edge-router_policy" {
   name   = "edge-router_policy"
   role   = "${aws_iam_role.edge-router_role.id}"
-  policy = "${file(\"${path.module}/edge-router-policy.json\")}"
+  policy = "${file("${path.module}/edge-router-policy.json")}"
 }
 
 resource "aws_iam_instance_profile" "edge-router_profile" {
