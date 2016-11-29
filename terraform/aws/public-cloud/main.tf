@@ -1,19 +1,18 @@
 variable "access_key" {}
 variable "secret_key" {}
 variable "organization" { default = "kubeform" }
-#variable "region" { default = "eu-west-1" }
-#variable "availability_zones" { default = "eu-west-1a,eu-west-1b,eu-west-1c" }
-variable "region" { default = "us-west-2" }
+variable "region" { default = "eu-west-1" }
 
 # length(availability_zones) must == length(vpc_public_cidrs_list)
 variable "availability_zones" {
     type = "list"
-    default = [ "us-west-2a", "us-west-2b" ]
+    default = [ "eu-west-1a", "eu-west-1b", "eu-west-1c" ]
 }
 variable "vpc_public_cidrs_list" {
     type = "list"
-    default = [ "10.0.1.0/24", "10.0.2.0/24" ]
+    default = [ "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24" ]
 }
+
 variable "coreos_channel" { default = "alpha" }
 variable "etcd_discovery_url_file" { default = "etcd_discovery_url.txt" }
 variable "masters" { default = "3" }
