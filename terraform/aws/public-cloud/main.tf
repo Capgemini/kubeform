@@ -172,8 +172,6 @@ resource "null_resource" "etcd_discovery_url" {
         command = "curl -s https://discovery.etcd.io/new?size=${var.masters} > ${var.etcd_discovery_url_file}"
     }
 
-    # This will regenerate the discovery URL if the cluster size changes
-    triggers {
-        size = "${var.masters}"
-    }
+    # To change the cluster size of an existing live cluster, please read:
+    # https://coreos.com/etcd/docs/latest/etcd-live-cluster-reconfiguration.html
 }
