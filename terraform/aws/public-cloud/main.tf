@@ -2,7 +2,17 @@ variable "access_key" {}
 variable "secret_key" {}
 variable "organization" { default = "kubeform" }
 variable "region" { default = "eu-west-1" }
-variable "availability_zones" { default = "eu-west-1a,eu-west-1b,eu-west-1c" }
+
+# length(availability_zones) must == length(vpc_public_cidrs_list)
+variable "availability_zones" {
+    type = "list"
+    default = [ "eu-west-1a", "eu-west-1b", "eu-west-1c" ]
+}
+variable "vpc_public_cidrs_list" {
+    type = "list"
+    default = [ "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24" ]
+}
+
 variable "coreos_channel" { default = "alpha" }
 variable "etcd_discovery_url_file" { default = "etcd_discovery_url.txt" }
 variable "masters" { default = "3" }
@@ -25,6 +35,9 @@ resource "aws_vpc" "default" {
   cidr_block           = "${var.vpc_cidr_block}"
   enable_dns_support   = true
   enable_dns_hostnames = true
+  tags {
+      Name = "${var.organization} VPC"
+  }
   lifecycle {
     create_before_destroy = true
   }
@@ -51,27 +64,27 @@ module "aws-keypair" {
 
 # certificates
 module "ca" {
-  source            = "github.com/Capgemini/tf_tls/ca"
+  source            = "github.com/tamsky/tf_tls/ca"
   organization      = "${var.organization}"
   ca_count          = "${var.masters + var.workers + var.edge-routers}"
-  deploy_ssh_hosts  = "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}"
+  deploy_ssh_hosts  = [ "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}" ]
   ssh_user          = "core"
   ssh_private_key   = "${tls_private_key.ssh.private_key_pem}"
 }
 
 module "etcd_cert" {
-  source             = "github.com/Capgemini/tf_tls/etcd"
+  source             = "github.com/tamsky/tf_tls/etcd"
   ca_cert_pem        = "${module.ca.ca_cert_pem}"
   ca_private_key_pem = "${module.ca.ca_private_key_pem}"
 }
 
 module "kube_master_certs" {
-  source                = "github.com/Capgemini/tf_tls/kubernetes/master"
+  source                = "github.com/tamsky/tf_tls/kubernetes/master"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
-  ip_addresses          = "${concat(aws_instance.master.*.private_ip, aws_instance.master.*.public_ip)}"
-  dns_names             = "${compact(module.master_elb.elb_dns_name)}"
-  deploy_ssh_hosts      = "${compact(aws_instance.master.*.public_ip)}"
+  ip_addresses          = [ "${concat(aws_instance.master.*.private_ip, aws_instance.master.*.public_ip)}" ]
+  dns_names             = [ "${module.master_elb.elb_dns_name}" ]
+  deploy_ssh_hosts      = [ "${aws_instance.master.*.public_ip}" ]
   master_count          = "${var.masters}"
   validity_period_hours = "8760"
   early_renewal_hours   = "720"
@@ -80,11 +93,11 @@ module "kube_master_certs" {
 }
 
 module "kube_kubelet_certs" {
-  source                = "github.com/Capgemini/tf_tls/kubernetes/kubelet"
+  source                = "github.com/tamsky/tf_tls/kubernetes/kubelet"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
-  ip_addresses          = "${concat(aws_instance.edge-router.*.private_ip, concat(aws_instance.master.*.private_ip, aws_instance.worker.*.private_ip))}"
-  deploy_ssh_hosts      = "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}"
+  ip_addresses          = [ "${concat(aws_instance.edge-router.*.private_ip, concat(aws_instance.master.*.private_ip, aws_instance.worker.*.private_ip))}" ]
+  deploy_ssh_hosts      = [ "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}" ]
   kubelet_count         = "${var.masters + var.workers + var.edge-routers}"
   validity_period_hours = "8760"
   early_renewal_hours   = "720"
@@ -93,35 +106,35 @@ module "kube_kubelet_certs" {
 }
 
 module "kube_admin_cert" {
-  source                = "github.com/Capgemini/tf_tls/kubernetes/admin"
+  source                = "github.com/tamsky/tf_tls/kubernetes/admin"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
   kubectl_server_ip     = "${module.master_elb.elb_dns_name}"
 }
 
 module "docker_daemon_certs" {
-  source                = "github.com/Capgemini/tf_tls/docker/daemon"
+  source                = "github.com/tamsky/tf_tls/docker/daemon"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
-  ip_addresses_list     = "${concat(aws_instance.edge-router.*.private_ip, concat(aws_instance.master.*.private_ip, aws_instance.worker.*.private_ip))}"
-  deploy_ssh_hosts      = "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}"
+  ip_addresses_list     = [ "${concat(aws_instance.edge-router.*.private_ip, concat(aws_instance.master.*.private_ip, aws_instance.worker.*.private_ip))}" ]
+  deploy_ssh_hosts      = [ "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}" ]
   docker_daemon_count   = "${var.masters + var.workers + var.edge-routers}"
   private_key           = "${tls_private_key.ssh.private_key_pem}"
-  validity_period_hours = 8760
-  early_renewal_hours   = 720
+  validity_period_hours = "8760"
+  early_renewal_hours   = "720"
   user                  = "core"
 }
 
 module "docker_client_certs" {
-  source                = "github.com/Capgemini/tf_tls/docker/client"
+  source                = "github.com/tamsky/tf_tls/docker/client"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
-  ip_addresses_list     = "${concat(aws_instance.edge-router.*.private_ip, concat(aws_instance.master.*.private_ip, aws_instance.worker.*.private_ip))}"
-  deploy_ssh_hosts      = "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}"
+  ip_addresses_list     = [ "${concat(aws_instance.edge-router.*.private_ip, concat(aws_instance.master.*.private_ip, aws_instance.worker.*.private_ip))}" ]
+  deploy_ssh_hosts      = [ "${concat(aws_instance.edge-router.*.public_ip, concat(aws_instance.master.*.public_ip, aws_instance.worker.*.public_ip))}" ]
   docker_client_count   = "${var.masters + var.workers + var.edge-routers}"
   private_key           = "${tls_private_key.ssh.private_key_pem}"
-  validity_period_hours = 8760
-  early_renewal_hours   = 720
+  validity_period_hours = "8760"
+  early_renewal_hours   = "720"
   user                  = "core"
 }
 
@@ -134,10 +147,10 @@ module "igw" {
 
 # public subnets
 module "public_subnet" {
-  source = "github.com/terraform-community-modules/tf_aws_public_subnet?ref=b7659c06cba6a545b83f569bc73560b266e6c9c1"
+  source = "github.com/terraform-community-modules/tf_aws_public_subnet"
   name   = "public"
-  cidrs  = "10.0.1.0/24,10.0.2.0/24,10.0.3.0/24"
-  azs    = "${var.availability_zones}"
+  cidrs  = [ "${var.vpc_public_cidrs_list}" ]
+  azs    = [ "${var.availability_zones}" ]
   vpc_id = "${aws_vpc.default.id}"
   igw_id = "${module.igw.igw_id}"
 }
@@ -154,13 +167,11 @@ module "iam" {
 }
 
 # Generate an etcd URL for the cluster
-resource "template_file" "etcd_discovery_url" {
-  template = "${file("/dev/null")}"
-  provisioner "local-exec" {
-    command = "curl https://discovery.etcd.io/new?size=${var.masters} > ${var.etcd_discovery_url_file}"
-  }
-  # This will regenerate the discovery URL if the cluster size changes
-  vars {
-    size = "${var.masters}"
-  }
+resource "null_resource" "etcd_discovery_url" {
+    provisioner "local-exec" {
+        command = "curl -s https://discovery.etcd.io/new?size=${var.masters} > ${var.etcd_discovery_url_file}"
+    }
+
+    # To change the cluster size of an existing live cluster, please read:
+    # https://coreos.com/etcd/docs/latest/etcd-live-cluster-reconfiguration.html
 }

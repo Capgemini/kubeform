@@ -10,16 +10,16 @@ module "master_ami" {
   virttype = "${module.master_amitype.prefer_hvm}"
 }
 
-resource "template_file" "master_cloud_init" {
+data "template_file" "master_cloud_init" {
   template   = "${file("master-cloud-config.yml.tpl")}"
-  depends_on = ["template_file.etcd_discovery_url"]
+  depends_on = ["null_resource.etcd_discovery_url"]
   vars {
     etcd_discovery_url = "${file(var.etcd_discovery_url_file)}"
     size               = "${var.masters}"
     region             = "${var.region}"
-    etcd_ca            = "${replace(module.ca.ca_cert_pem, \"\n\", \"\\n\")}"
-    etcd_cert          = "${replace(module.etcd_cert.etcd_cert_pem, \"\n\", \"\\n\")}"
-    etcd_key           = "${replace(module.etcd_cert.etcd_private_key, \"\n\", \"\\n\")}"
+    etcd_ca            = "${replace(module.ca.ca_cert_pem, "\n", "\\n")}"
+    etcd_cert          = "${replace(module.etcd_cert.etcd_cert_pem, "\n", "\\n")}"
+    etcd_key           = "${replace(module.etcd_cert.etcd_private_key, "\n", "\\n")}"
   }
 }
 
@@ -29,10 +29,10 @@ resource "aws_instance" "master" {
   iam_instance_profile = "${module.iam.master_profile_name}"
   count                = "${var.masters}"
   key_name             = "${module.aws-keypair.keypair_name}"
-  subnet_id            = "${element(split(",", module.public_subnet.subnet_ids), count.index)}"
+  subnet_id            = "${element(module.public_subnet.subnet_ids, count.index)}"
   source_dest_check    = false
-  security_groups      = ["${module.sg-default.security_group_id}"]
-  user_data            = "${template_file.master_cloud_init.rendered}"
+  vpc_security_group_ids = ["${module.sg-default.security_group_id}"]
+  user_data            = "${data.template_file.master_cloud_init.rendered}"
   tags = {
     Name   = "kube-master-${count.index}"
     role   = "masters"
@@ -60,8 +60,8 @@ resource "aws_instance" "master" {
 module "master_elb" {
   source             = "../elb"
   security_groups    = "${module.sg-default.security_group_id}"
-  instances          = "${compact(aws_instance.master.*.id)}"
-  subnets            = "${compact(split(",", module.public_subnet.subnet_ids))}"
+  instances          = [ "${aws_instance.master.*.id}" ]
+  subnets            = [ "${module.public_subnet.subnet_ids}" ]
 }
 
 output "master_ips" {

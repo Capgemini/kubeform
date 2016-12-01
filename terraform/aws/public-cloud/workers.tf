@@ -10,16 +10,16 @@ module "worker_ami" {
   virttype = "${module.worker_amitype.prefer_hvm}"
 }
 
-resource "template_file" "worker_cloud_init" {
+data "template_file" "worker_cloud_init" {
   template   = "${file("worker-cloud-config.yml.tpl")}"
-  depends_on = ["template_file.etcd_discovery_url"]
+  depends_on = ["null_resource.etcd_discovery_url"]
   vars {
     etcd_discovery_url = "${file(var.etcd_discovery_url_file)}"
     size               = "${var.masters}"
     region             = "${var.region}"
-    etcd_ca            = "${replace(module.ca.ca_cert_pem, \"\n\", \"\\n\")}"
-    etcd_cert          = "${replace(module.etcd_cert.etcd_cert_pem, \"\n\", \"\\n\")}"
-    etcd_key           = "${replace(module.etcd_cert.etcd_private_key, \"\n\", \"\\n\")}"
+    etcd_ca            = "${replace(module.ca.ca_cert_pem, "\n", "\\n")}"
+    etcd_cert          = "${replace(module.etcd_cert.etcd_cert_pem, "\n", "\\n")}"
+    etcd_key           = "${replace(module.etcd_cert.etcd_private_key, "\n", "\\n")}"
   }
 }
 
@@ -29,11 +29,11 @@ resource "aws_instance" "worker" {
   iam_instance_profile = "${module.iam.worker_profile_name}"
   count                = "${var.workers}"
   key_name             = "${module.aws-keypair.keypair_name}"
-  subnet_id            = "${element(split(",", module.public_subnet.subnet_ids), count.index)}"
+  subnet_id            = "${element(module.public_subnet.subnet_ids, count.index)}"
   source_dest_check    = false
-  security_groups      = ["${module.sg-default.security_group_id}"]
+  vpc_security_group_ids = ["${module.sg-default.security_group_id}"]
   depends_on           = ["aws_instance.master"]
-  user_data            = "${template_file.worker_cloud_init.rendered}"
+  user_data            = "${data.template_file.worker_cloud_init.rendered}"
   tags = {
     Name   = "kube-worker-${count.index}"
     role   = "workers"
