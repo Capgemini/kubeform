@@ -11,7 +11,7 @@ module "master_ami" {
 }
 
 data "template_file" "master_cloud_init" {
-  template   = "master-cloud-config.yml.tpl"
+  template   = "${file("master-cloud-config.yml.tpl")}"
   depends_on = ["null_resource.etcd_discovery_url"]
   vars {
     etcd_discovery_url = "${file(var.etcd_discovery_url_file)}"
@@ -20,7 +20,7 @@ data "template_file" "master_cloud_init" {
   }
 }
 
-resource "aws_instance" "mmaster" {
+resource "aws_instance" "master" {
   instance_type     = "${var.master_instance_type}"
   ami               = "${module.master_ami.ami_id}"
   count             = "${var.masters}"

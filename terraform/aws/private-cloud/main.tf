@@ -3,8 +3,19 @@ variable "secret_key" {}
 variable "public_key_file" { default = "~/.ssh/id_rsa_aws.pub" }
 variable "private_key_file" { default = "~/.ssh/id_rsa_aws.pem" }
 variable "region" { default = "eu-west-1" }
-variable "availability_zones" { default = "eu-west-1a,eu-west-1b,eu-west-1c" }
+variable "availability_zones" {
+    type = "list"
+    default = [ "eu-west-1a", "eu-west-1b", "eu-west-1c" ]
+}
 variable "vpc_cidr_block" { default = "10.0.0.0/16" }
+variable "vpc_private_subnets_list" {
+    type = "list"
+    default = [ "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24" ]
+}
+variable "vpc_public_subnets_list" {
+    type = "list"
+    default = [ "10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24" ]
+}
 variable "coreos_channel" { default = "stable" }
 variable "etcd_discovery_url_file" { default = "etcd_discovery_url.txt" }
 variable "masters" { default = "3" }
@@ -27,18 +38,18 @@ module "vpc" {
   name                = "default"
 
   cidr                = "${var.vpc_cidr_block}"
-  private_subnets     = "10.0.1.0/24,10.0.2.0/24,10.0.3.0/24"
-  public_subnets      = "10.0.101.0/24,10.0.102.0/24,10.0.103.0/24"
+  private_subnets     = [ "${var.vpc_private_subnets_list}" ]
+  public_subnets      = [ "${var.vpc_public_subnets_list}" ]
   bastion_instance_id = "${aws_instance.bastion.id}"
 
-  azs                 = "${var.availability_zones}"
+  azs                 = [ "${var.availability_zones}" ]
 }
 
 # ssh keypair for instances
 module "aws-keypair" {
   source = "../keypair"
 
-  public_key_filename = "${var.public_key_file}"
+  public_key = "${file("${var.public_key_file}")}"
 }
 
 # security group to allow all traffic in and out of the instances in the VPC
@@ -62,10 +73,8 @@ resource "null_resource" "etcd_discovery_url" {
         command = "curl -s https://discovery.etcd.io/new?size=${var.masters} > ${var.etcd_discovery_url_file}"
     }
 
-    # This will regenerate the discovery URL if the cluster size changes
-    triggers {
-        size = "${var.masters}"
-    }
+    # To change the cluster size of an existing live cluster, please read:
+    # https://coreos.com/etcd/docs/latest/etcd-live-cluster-reconfiguration.html
 }
 
 # outputs

@@ -1,9 +1,9 @@
 variable "name" { }
 variable "cidr" { }
-variable "public_subnets" { default = "" }
-variable "private_subnets" { default = "" }
+variable "public_subnets" { default = [] }
+variable "private_subnets" { default = [] }
 variable "bastion_instance_id" { }
-variable "azs" { }
+variable "azs" { type="list" }
 variable "enable_dns_hostnames" {
   description = "should be true if you want to use private DNS within the VPC"
   default = false
@@ -51,9 +51,9 @@ resource "aws_route_table" "private" {
 
 resource "aws_subnet" "private" {
   vpc_id            = "${aws_vpc.mod.id}"
-  cidr_block        = "${element(split(",", var.private_subnets), count.index)}"
-  availability_zone = "${element(split(",", var.azs), count.index)}"
-  count             = "${length(compact(split(",", var.private_subnets)))}"
+  cidr_block        = "${element(var.private_subnets, count.index)}"
+  availability_zone = "${element(var.azs, count.index)}"
+  count             = "${length(var.private_subnets)}"
   tags {
     Name = "${var.name}-private"
   }
@@ -61,9 +61,9 @@ resource "aws_subnet" "private" {
 
 resource "aws_subnet" "public" {
   vpc_id            = "${aws_vpc.mod.id}"
-  cidr_block        = "${element(split(",", var.public_subnets), count.index)}"
-  availability_zone = "${element(split(",", var.azs), count.index)}"
-  count             = "${length(compact(split(",", var.public_subnets)))}"
+  cidr_block        = "${element(var.public_subnets, count.index)}"
+  availability_zone = "${element(var.azs, count.index)}"
+  count             = "${length(var.public_subnets)}"
   tags {
     Name = "${var.name}-public"
   }
@@ -72,13 +72,13 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_route_table_association" "private" {
-  count          = "${length(compact(split(",", var.private_subnets)))}"
+  count          = "${length(var.private_subnets)}"
   subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
   route_table_id = "${aws_route_table.private.id}"
 }
 
 resource "aws_route_table_association" "public" {
-  count          = "${length(compact(split(",", var.public_subnets)))}"
+  count          = "${length(var.public_subnets)}"
   subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
   route_table_id = "${aws_route_table.public.id}"
 }
