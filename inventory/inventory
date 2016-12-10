@@ -1,8 +1,13 @@
 [role=masters]
+178.62.104.128
+178.62.105.27
+178.62.105.128
 
 [role=workers]
+178.62.104.48
 
 [role=edge-routers]
+178.62.104.231
 
 [masters:children]
 role=masters
