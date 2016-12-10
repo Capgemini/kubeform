@@ -8,7 +8,7 @@ The cluster is provisioned in separate stages as follows:
 ## Prerequisites
 
 1. You need a Digitalocean account. Visit [https://cloud.digitalocean.com/registrations/new](https://cloud.digitalocean.com/registrations/new) to get started
-2. You need to have installed and configured Terraform (>= 0.6.16 recommended). Visit [https://www.terraform.io/intro/getting-started/install.html](https://www.terraform.io/intro/getting-started/install.html) to get started.
+2. You need to have installed and configured Terraform (>= 0.7.13 recommended). Visit [https://www.terraform.io/intro/getting-started/install.html](https://www.terraform.io/intro/getting-started/install.html) to get started.
 3. You need to have [Python](https://www.python.org/) >= 2.7.5 installed along with [pip](https://pip.pypa.io/en/latest/installing.html).
 4. Kubectl installed in and your PATH:
 
@@ -68,13 +68,25 @@ cd /tmp/kubeform
 ansible-galaxy install -r requirements.yml
 ```
 
+Ensure that an ssh server is running on port 22 on your development machine.
+
 To run the Ansible playbook (to configure the cluster):
 
 ```
-ansible-playbook -u core --ssh-common-args="-i /tmp/kubeform/terraform/digitalocean/id_rsa -q" --inventory-file=inventory site.yml
+ansible-playbook -u core --private-key=/tmp/kubeform/terraform/digitalocean/id_rsa --inventory-file=inventory site.yml
 ```
 
 This will run the playbook (using the credentials output by terraform and the terraform state as a dynamic inventory).
+
+###?| Log in
+
+Once you're set up, you can log into the dashboard by running:
+
+```
+kubectl proxy
+```
+
+and visiting the following URL [http://localhost:8001/ui](http://localhost:8001/ui)
 
 ## Cluster Destroy
 
