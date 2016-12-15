@@ -21,6 +21,15 @@ KUBERNETES_VERSION=1.2.4 docker-compose up -d
 
 replace with the relevant Kubernetes version.
 
+###?| Troubleshooting
+
+When working with Docker for mac on OSX, you may find that you need to replace two lines in the docker-compose.yml with the following:
+
+```
+      - /private/var/lib/docker/:/var/lib/docker:ro
+      - /private/var/lib/kubelet/:/var/lib/kubelet:rw/
+```
+
 ## Cluster Destroy
 
 ```

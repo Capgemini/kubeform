@@ -74,10 +74,20 @@ ansible-galaxy install -r requirements.yml
 To run the Ansible playbook (to configure the cluster):
 
 ```
-ansible-playbook -u core --ssh-common-args="-i /tmp/kubeform/terraform/aws/public-cloud/id_rsa -q" --inventory-file=inventory site.yml -e kube_apiserver_vip=$(cd /tmp/kubeform/terraform/aws/public-cloud && terraform output master_elb_hostname)
+ansible-playbook -u core --private-key=/tmp/kubeform/terraform/aws/public-cloud/id_rsa --inventory-file=inventory site.yml -e kube_apiserver_vip=$(cd /tmp/kubeform/terraform/aws/public-cloud && terraform output master_elb_hostname)
 ```
 
 This will run the playbook (using the credentials output by terraform and the terraform state as a dynamic inventory) and inject the AWS ELB (for the master API servers) address as a variable ```kube_apiserver_vip```.
+
+###?| Log in
+
+Once you're set up, you can log into the dashboard by running:
+
+```
+kubectl proxy
+```
+
+and visiting the following URL [http://localhost:8001/ui](http://localhost:8001/ui)
 
 ## Cluster Destroy
 
@@ -85,3 +95,13 @@ This will run the playbook (using the credentials output by terraform and the te
 cd /tmp/kubeform/terraform/aws/public-cloud
 terraform destroy
 ```
+
+## Troubleshooting
+
+If the ```ansible-playbook``` command fails all steps with:
+
+```
+skipping: no hosts matched
+```
+
+Check that your ```TF_VAR_STATE_ROOT``` variable is defined correctly (see config section above) and ensure that the directory contains terraform.tfstate, which should have been created during the ```terraform apply``` execution.

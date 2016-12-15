@@ -8,7 +8,7 @@ The cluster is provisioned in separate stages as follows:
 ## Prerequisites
 
 1. You need a Digitalocean account. Visit [https://cloud.digitalocean.com/registrations/new](https://cloud.digitalocean.com/registrations/new) to get started
-2. You need to have installed and configured Terraform (>= 0.6.16 recommended). Visit [https://www.terraform.io/intro/getting-started/install.html](https://www.terraform.io/intro/getting-started/install.html) to get started.
+2. You need to have installed and configured Terraform (>= 0.7.13 recommended). Visit [https://www.terraform.io/intro/getting-started/install.html](https://www.terraform.io/intro/getting-started/install.html) to get started.
 3. You need to have [Python](https://www.python.org/) >= 2.7.5 installed along with [pip](https://pip.pypa.io/en/latest/installing.html).
 4. Kubectl installed in and your PATH:
 
@@ -71,10 +71,20 @@ ansible-galaxy install -r requirements.yml
 To run the Ansible playbook (to configure the cluster):
 
 ```
-ansible-playbook -u core --ssh-common-args="-i /tmp/kubeform/terraform/digitalocean/id_rsa -q" --inventory-file=inventory site.yml
+ansible-playbook -u core --private-key=/tmp/kubeform/terraform/digitalocean/id_rsa --inventory-file=inventory site.yml
 ```
 
 This will run the playbook (using the credentials output by terraform and the terraform state as a dynamic inventory).
+
+###?| Log in
+
+Once you're set up, you can log into the dashboard by running:
+
+```
+kubectl proxy
+```
+
+and visiting the following URL [http://localhost:8001/ui](http://localhost:8001/ui)
 
 ## Cluster Destroy
 
@@ -82,3 +92,13 @@ This will run the playbook (using the credentials output by terraform and the te
 cd /tmp/kubeform/terraform/digitalocean
 terraform destroy
 ```
+
+## Troubleshooting
+
+If the ```ansible-playbook``` command fails all steps with:
+
+```
+skipping: no hosts matched
+```
+
+Check that your ```TF_VAR_STATE_ROOT``` variable is defined correctly (see config section above) and ensure that the directory contains terraform.tfstate, which should have been created during the ```terraform apply``` execution.
