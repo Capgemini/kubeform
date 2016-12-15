@@ -47,7 +47,7 @@ resource "template_file" "etcd_discovery_url" {
 }
 
 module "ca" {
-  source            = "github.com/mattcoffey/tf_tls/ca"
+  source            = "github.com/tamsky/tf_tls/ca"
   organization      = "${var.organization}"
   ca_count          = "${var.masters + var.workers + var.edge-routers}"
   deploy_ssh_hosts  = "${concat(digitalocean_droplet.edge-router.*.ipv4_address, concat(digitalocean_droplet.master.*.ipv4_address, digitalocean_droplet.worker.*.ipv4_address))}"
@@ -62,7 +62,7 @@ module "etcd_cert" {
 }
 
 module "kube_master_certs" {
-  source                = "github.com/mattcoffey/tf_tls/kubernetes/master"
+  source                = "github.com/tamsky/tf_tls/kubernetes/master"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
   ip_addresses          = "${compact(digitalocean_droplet.master.*.ipv4_address)}"
@@ -76,7 +76,7 @@ module "kube_master_certs" {
 }
 
 module "kube_kubelet_certs" {
-  source                = "github.com/mattcoffey/tf_tls/kubernetes/kubelet"
+  source                = "github.com/tamsky/tf_tls/kubernetes/kubelet"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
   ip_addresses          = "${concat( digitalocean_droplet.edge-router.*.ipv4_address, concat(digitalocean_droplet.master.*.ipv4_address, digitalocean_droplet.worker.*.ipv4_address))}"
@@ -89,14 +89,14 @@ module "kube_kubelet_certs" {
 }
 
 module "kube_admin_cert" {
-  source                = "github.com/mattcoffey/tf_tls/kubernetes/admin"
+  source                = "github.com/tamsky/tf_tls/kubernetes/admin"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
   kubectl_server_ip     = "${digitalocean_droplet.master.0.ipv4_address}"
 }
 
 module "docker_daemon_certs" {
-  source                = "github.com/mattcoffey/tf_tls/docker/daemon"
+  source                = "github.com/tamsky/tf_tls/docker/daemon"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
   ip_addresses_list     = "${concat(digitalocean_droplet.edge-router.*.ipv4_address, concat(digitalocean_droplet.master.*.ipv4_address, digitalocean_droplet.worker.*.ipv4_address))}"
@@ -109,7 +109,7 @@ module "docker_daemon_certs" {
 }
 
 module "docker_client_certs" {
-  source                = "github.com/mattcoffey/tf_tls/docker/client"
+  source                = "github.com/tamsky/tf_tls/docker/client"
   ca_cert_pem           = "${module.ca.ca_cert_pem}"
   ca_private_key_pem    = "${module.ca.ca_private_key_pem}"
   ip_addresses_list     = "${concat(digitalocean_droplet.edge-router.*.ipv4_address, concat(digitalocean_droplet.master.*.ipv4_address, digitalocean_droplet.worker.*.ipv4_address))}"

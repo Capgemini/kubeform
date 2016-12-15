@@ -70,7 +70,6 @@ To install the role dependencies for Ansible execute:
 cd /tmp/kubeform
 ansible-galaxy install -r requirements.yml
 ```
-Ensure that an ssh server is running on port 22 on your development machine.
 
 To run the Ansible playbook (to configure the cluster):
 
@@ -96,3 +95,13 @@ and visiting the following URL [http://localhost:8001/ui](http://localhost:8001/
 cd /tmp/kubeform/terraform/aws/public-cloud
 terraform destroy
 ```
+
+## Troubleshooting
+
+If the ```ansible-playbook``` command fails all steps with:
+
+```
+skipping: no hosts matched
+```
+
+Check that your ```TF_VAR_STATE_ROOT``` variable is defined correctly (see config section above) and ensure that the directory contains terraform.tfstate, which should have been created during the ```terraform apply``` execution.
